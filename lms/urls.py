@@ -198,6 +198,9 @@ urlpatterns = [
     ),
     url(r'^api/discounts/', include(('openedx.features.discounts.urls', 'openedx.features.discounts'),
                                     namespace='api_discounts')),
+
+    # lms api
+    url(r'^custom_lms_api/', include('lms.djangoapps.custom_lms_api.urls')),
 ]
 
 if settings.FEATURES.get('ENABLE_MOBILE_REST_API'):

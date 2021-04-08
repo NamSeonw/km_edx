@@ -1096,6 +1096,8 @@ def progress(request, course_id, student_id=None):
     """ Display the progress page. """
     course_key = CourseKey.from_string(course_id)
 
+    print('progress')
+
     with modulestore().bulk_operations(course_key):
         return _progress(request, course_key, student_id)
 
@@ -1106,6 +1108,8 @@ def _progress(request, course_key, student_id):
     User progress. We show the grade bar and every problem score.
     Course staff are allowed to see the progress of students in their class.
     """
+
+    print("_progress")
 
     if student_id is not None:
         try:
@@ -1154,11 +1158,20 @@ def _progress(request, course_key, student_id):
     course_grade = CourseGradeFactory().read(student, course)
     courseware_summary = list(course_grade.chapter_grades.values())
 
+    print('course_grade', course_grade)
+    print('courseware_summary', courseware_summary)
+
     studio_url = get_studio_url(course, 'settings/grading')
     # checking certificate generation configuration
     enrollment_mode, _ = CourseEnrollment.enrollment_mode_for_user(student, course_key)
 
     course_expiration_fragment = generate_course_expired_fragment(student, course)
+
+    print('course_expiration_fragment', course_expiration_fragment)
+    print('credit_course_requirements(course_key, student)', credit_course_requirements(course_key, student))
+    print('course_grade.summary', course_grade.summary)
+    print('get_cert_data(student, course, enrollment_mode, course_grade)', get_cert_data(student, course, enrollment_mode, course_grade))
+    print('masquerade', masquerade)
 
     context = {
         'course': course,

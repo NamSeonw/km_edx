@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 
 from openedx.core.djangoapps.user_authn.utils import generate_password
 from common.djangoapps.student.models import UserProfile
+from django.contrib.auth.hashers import make_password, check_password
 
 
 def is_valid_django_hash(encoded):
@@ -40,6 +41,7 @@ class Command(BaseCommand):
         parser.add_argument('--staff', dest='is_staff', action='store_true')
         parser.add_argument('--unusable-password', dest='unusable_password', action='store_true')
         parser.add_argument('--initial-password-hash', dest='initial_password_hash')
+        parser.add_argument('--password', dest='password')
         parser.add_argument('-g', '--groups', nargs='*', default=[])
 
     def _maybe_update(self, user, attribute, new_value):
@@ -86,7 +88,7 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, username, email, is_remove, is_staff, is_superuser, groups,
-               unusable_password, initial_password_hash, *args, **options):
+               unusable_password, initial_password_hash, password, *args, **options):
 
         if is_remove:
             return self._handle_remove(username, email)
@@ -102,6 +104,10 @@ class Command(BaseCommand):
                 if not (is_password_usable(initial_password_hash) and is_valid_django_hash(initial_password_hash)):
                     raise CommandError('The password hash provided for user {} is invalid.'.format(username))
                 user.password = initial_password_hash
+
+            # password setting 하는 부분
+            elif password:
+                user.password = make_password(password)
             else:
                 # Set the password to a random, unknown, but usable password
                 # allowing self-service password resetting.  Cases where unusable
